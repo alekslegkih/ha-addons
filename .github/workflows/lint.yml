@@ -17,27 +17,38 @@ jobs:
         id: changes
         run: |
           echo "Detecting changed files..."
-      
+
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE=${{ github.event.pull_request.base.sha }}
             DIFF_FILES=$(git diff --name-only $BASE ${{ github.sha }})
           else
             BEFORE=${{ github.event.before }}
             if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              echo "Initial commit detected"
               DIFF_FILES=$(git ls-files)
             else
               DIFF_FILES=$(git diff --name-only $BEFORE ${{ github.sha }})
             fi
           fi
-      
+
           echo "Changed files:"
           echo "$DIFF_FILES"
-      
-          CHANGED_ADDONS=$(echo "$DIFF_FILES" | cut -d/ -f1 | sort -u)
-      
-          echo "Changed top-level directories:"
+
+          CHANGED_ADDONS=""
+
+          for file in $DIFF_FILES; do
+            top=$(echo "$file" | cut -d/ -f1)
+
+            if [ -d "$top" ] && [ -f "$top/config.yaml" ]; then
+              CHANGED_ADDONS="$CHANGED_ADDONS $top"
+            fi
+          done
+
+          CHANGED_ADDONS=$(echo $CHANGED_ADDONS | tr ' ' '\n' | sort -u)
+
+          echo "Detected addons:"
           echo "$CHANGED_ADDONS"
-      
+
           {
             echo "addons<<EOF"
             echo "$CHANGED_ADDONS"
