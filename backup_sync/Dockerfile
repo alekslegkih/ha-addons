@@ -19,10 +19,9 @@ RUN apk add --no-cache \
     blkid \
     jq \
     python3 \
-    py3-pip \
-    mc
+    py3-pip
 
-# Python зависимости 
+# Python зависимости
 RUN python3 -m pip install --break-system-packages --no-cache-dir \
     watchdog \
     requests
