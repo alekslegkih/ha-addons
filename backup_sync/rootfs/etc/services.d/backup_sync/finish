@@ -1,0 +1,11 @@
+#!/command/with-contenv bashio
+# shellcheck shell=bash
+
+exit_code="$1"
+
+if [ "$exit_code" -eq 256 ]; then
+  bashio::log.info "Addon stopped normally"
+else
+  bashio::log.fatal "Addon failed (code: $exit_code) — halting container"
+  exec /run/s6/basedir/bin/halt
+fi
