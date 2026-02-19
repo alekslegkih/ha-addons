@@ -72,7 +72,6 @@ copy_one() {
     name="$(basename "$src")"
     tmp="${TARGET_DIR}/.${name}.tmp"
 
-    log_section "Backup copy processing"
     log "Backup detected: ${name}"
 
     # -------------------------
@@ -122,13 +121,11 @@ copy_one() {
 # main loop
 # ---------------------------------------------------------
 
-log_ok "Copier worker started"
-
 while true; do
     file=$(queue_pop || true)
 
     if [ -z "${file:-}" ]; then
-        sleep 2
+        sleep 5
         continue
     fi
 

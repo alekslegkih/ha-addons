@@ -6,6 +6,7 @@
 # Runs backup_sync script
 # ==============================================================================
 
+s6-notifyoncheck -d
 bashio::log.info "Backup Sync to USB addon starting"
 
 exec /usr/bin/backup_sync.sh

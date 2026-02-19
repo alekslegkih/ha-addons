@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
 
 # =========================================================
 # Simple pretty logger for Backup Sync addon
