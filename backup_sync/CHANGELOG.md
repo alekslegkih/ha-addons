@@ -1,10 +1,18 @@
+```md
 ## 0.2.5
 
-- Add translations files
+- Added translations.
 
 ## 0.3.0
 
-- Added support for mounting by LABEL and UUID
-- Improved storage detection output (added UUID column)
-- Refactored storage validation and mount logic
-- Improved error handling and user guidance
+- Support mounting by LABEL and UUID.
+- Added UUID to storage detection output.
+- Improved validation, mounting logic, and error handling.
+
+## 0.4.0
+
+- Reworked internal service architecture (s6-rc longrun).
+- Improved startup and shutdown handling.
+- Reduced system log noise.
+- Fixed USB mount handling.
+```

@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bashio
 # shellcheck shell=bash
 
-set -uo pipefail
+set -euo pipefail
 
 # =========================================================
 # Bootstrap only
@@ -16,6 +16,9 @@ source "${BASE_DIR}/storage/checks.sh"
 source "${BASE_DIR}/storage/detect.sh"
 source "${BASE_DIR}/storage/mount.sh"
 
+# Exit code
+trap 'exit_code=$?; log_debug "REAL EXIT CODE: $exit_code"' EXIT
+# trap 'echo "REAL EXIT CODE: $?"' EXIT
 
 # =========================================================
 # emit helper
@@ -31,15 +34,24 @@ emit() {
 # =========================================================
 
 fail_and_stop() {
-  log_error "$1"
+  local caller="${FUNCNAME[1]}"
+  local message="$1"
+
+  log_error "${message}"
+  log_debug "[${caller}] ${message}"
+
 
   if _is_debug; then
     log_warn "Debug mode enabled — staying alive for investigation"
-  else
-    exit 1
+    sleep infinity
   fi
+
+  exit 1
 }
 
+
+
+# trap 'shutdown 0' SIGTERM SIGINT
 
 # =========================================================
 # Load config
@@ -94,7 +106,5 @@ fi
 
 log_ok "System ready"
 emit ready '{}'
-
-s6-notifyoncheck -n
 
 wait "${COPIER_PID}"

@@ -19,8 +19,7 @@ Runs in the background and integrates with Home Assistant via events.
 ### USB device (`usb_device`)
 
 The USB drive partition that will be used by the addon.  
-You can specify a partition, location, or UUID.  
-Example: `sdb1 | label | 445ceeab-ad36-4624-856d-c562596668a2`.
+Example: `sdb1`.
 
 > [!WARNING]
 > Specify the disk partition (for example, `sdb1`),  
