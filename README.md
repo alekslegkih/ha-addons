@@ -20,7 +20,7 @@ In the Home Assistant web interface, go to <kbd>Supervisor</kbd> → <kbd>Add-on
 Click the three-dot menu <kbd>...</kbd> in the top-right corner and select <kbd>Repositories</kbd>.  
 In the dialog that appears, paste the repository URL below and click <kbd>Add</kbd>:
 
-```html
+```bash
 
 https://github.com/alekslegkih/ha-addons
 ```
