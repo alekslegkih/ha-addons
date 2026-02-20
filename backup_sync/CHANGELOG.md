@@ -15,4 +15,9 @@
 - Improved startup and shutdown handling.
 - Reduced system log noise.
 - Fixed USB mount handling.
+
+## 0.4.1
+
+- Fixed device resolution failure when debug mode is enabled.
+- Improved stability of storage detection logic.
 ```

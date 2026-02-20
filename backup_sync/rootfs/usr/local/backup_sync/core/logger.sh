@@ -67,5 +67,5 @@ log_section() {
 # Debug (purple + timestamp, only if flag exists)
 log_debug() {
     _is_debug || return 0
-    _log_raw "${PURPLE}" "[$(_ts)] $*"
+    _log_raw "${PURPLE}" "[$(_ts)] $*" >&2
 }

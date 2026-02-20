@@ -11,19 +11,20 @@ _is_debug() { [ -f "${DEBUG_FLAG}" ]; }
 
 resolve_device() {
   local input="$1"
+  local path
 
   log_debug "Resolving device for: ${input}"
 
-  if [ -b "/dev/${input}" ]; then
-    echo "/dev/${input}"
-    return 0
-  elif [ -b "/dev/disk/by-label/${input}" ]; then
-    echo "/dev/disk/by-label/${input}"
-    return 0
-  elif [ -b "/dev/disk/by-uuid/${input}" ]; then
-    echo "/dev/disk/by-uuid/${input}"
-    return 0
-  fi
+  for path in \
+    "/dev/${input}" \
+    "/dev/disk/by-label/${input}" \
+    "/dev/disk/by-uuid/${input}"
+  do
+    if [ -b "$path" ]; then
+      printf '%s\n' "$path"
+      return 0
+    fi
+  done
 
   return 1
 }
