@@ -1,4 +1,3 @@
-```md
 ## 0.2.5
 
 - Added translations.
@@ -20,4 +19,3 @@
 
 - Fixed device resolution failure when debug mode is enabled.
 - Improved stability of storage detection logic.
-```
