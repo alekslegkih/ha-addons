@@ -3,7 +3,6 @@
 
 set -uo pipefail
 
-
 RUNTIME_ENV="/run/backup_sync/runtime.env"
 
 if [ ! -f "$RUNTIME_ENV" ]; then
@@ -18,7 +17,6 @@ set +a
 emit() {
     python3 "${BASE_DIR}/ha/emit_cli.py" "$@" || true
 }
-
 
 # ---------------------------------------------------------
 # helpers

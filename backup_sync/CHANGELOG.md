@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.3
+
+- Changed logging of ru modules
+
 ## v0.5.2
 
 - Minor bug fixes
