@@ -58,25 +58,29 @@ jobs:
           fi
 
           if [ "$FORCE_BUILD" = true ]; then
-                    echo "Collecting ALL addons for force build"
-                    ADDONS=$(find . -maxdepth 2 -name "config.yaml" -exec dirname {} \; | sed 's|^\./||' | sort -u)
+            echo "Collecting ALL addons for force build"
+            ADDONS=$(find . -maxdepth 2 -name "config.yaml" -exec dirname {} \; | sed 's|^\./||' | sort -u)
           else
-
-          ADDONS=$(git diff $BASE ${{ github.sha }} --name-only | cut -d/ -f1 | sort -u)
+            ADDONS=$(git diff $BASE ${{ github.sha }} --name-only | cut -d/ -f1 | sort -u)
+          fi
 
           RESULT="[]"
 
           for addon in $ADDONS; do
             if [ -f "$addon/config.yaml" ]; then
 
-              OLD=$(git show $BASE:$addon/config.yaml 2>/dev/null | grep '^version:' | awk '{print $2}')
-              NEW=$(grep '^version:' $addon/config.yaml | awk '{print $2}')
+              if [ "$FORCE_BUILD" = true ]; then
+                echo "Force build: adding $addon"
+                RESULT=$(jq -c ". + [\"$addon\"]" <<< "$RESULT")
+              else
+                OLD=$(git show $BASE:$addon/config.yaml 2>/dev/null | grep '^version:' | awk '{print $2}')
+                NEW=$(grep '^version:' $addon/config.yaml | awk '{print $2}')
+                echo "addon=$addon OLD=$OLD NEW=$NEW"
 
-              echo "addon=$addon OLD=$OLD NEW=$NEW"
-
-            if [ "$FORCE_BUILD" = true ] || ( [ -n "$OLD" ] && [ "$OLD" != "$NEW" ] ); then
-                          RESULT=$(jq -c ". + [\"$addon\"]" <<< "$RESULT")
-            fi
+                if [ -n "$OLD" ] && [ "$OLD" != "$NEW" ]; then
+                  RESULT=$(jq -c ". + [\"$addon\"]" <<< "$RESULT")
+                fi
+              fi
 
             fi
           done
