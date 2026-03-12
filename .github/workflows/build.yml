@@ -45,11 +45,19 @@ jobs:
             BASE=${{ github.event.before }}
           fi
 
-          # Если это первый коммит (нет BASE), используем корневой коммит
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             echo "First commit detected, using root commit"
             BASE=$(git rev-list --max-parents=0 HEAD)
           fi
+
+          FORCE_BUILD=false
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" == "initial build" ]]; then
+            echo "Force build all addons detected"
+            FORCE_BUILD=true
+          fi
+
+
 
           ADDONS=$(git diff $BASE ${{ github.sha }} --name-only | cut -d/ -f1 | sort -u)
 
