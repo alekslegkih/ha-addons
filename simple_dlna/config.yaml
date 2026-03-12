@@ -6,7 +6,7 @@ url: "https://github.com/alekslegkih/ha-addons/tree/main/simple_dlna"
 arch:
   - amd64
   - aarch64
-image: ghcr.io/alekslegkih/simple_dlna-{arch}
+image: ghcr.io/alekslegkih/simple_dlna
 startup: application
 boot: auto
 init: false
