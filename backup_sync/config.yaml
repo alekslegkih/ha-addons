@@ -6,7 +6,7 @@ url: "https://github.com/alekslegkih/ha-addons/tree/main/backup_sync"
 arch:
   - amd64
   - aarch64
-image: ghcr.io/alekslegkih/backup_sync-{arch}
+image: ghcr.io/alekslegkih/backup_sync
 startup: application
 boot: auto
 init: false
