@@ -71,9 +71,9 @@ jobs:
 
               echo "addon=$addon OLD=$OLD NEW=$NEW"
 
-              if [ -n "$OLD" ] && [ "$OLD" != "$NEW" ]; then
-                RESULT=$(jq -c ". + [\"$addon\"]" <<< "$RESULT")
-              fi
+            if [ "$FORCE_BUILD" = true ] || ( [ -n "$OLD" ] && [ "$OLD" != "$NEW" ] ); then
+                          RESULT=$(jq -c ". + [\"$addon\"]" <<< "$RESULT")
+            fi
 
             fi
           done
