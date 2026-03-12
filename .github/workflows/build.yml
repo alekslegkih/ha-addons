@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      force_build:
+        description: "Force build all addons"
+        required: false
+        default: "false"
 
 jobs:
 
@@ -51,9 +57,8 @@ jobs:
           fi
 
           FORCE_BUILD=false
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" == "initial build" ]]; then
-            echo "Force build all addons detected"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force_build }}" = "true" ]; then
+            echo "Manual force build requested"
             FORCE_BUILD=true
           fi
 
