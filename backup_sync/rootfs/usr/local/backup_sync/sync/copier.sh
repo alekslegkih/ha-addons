@@ -1,0 +1,184 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+
+set -uo pipefail
+
+
+RUNTIME_ENV="/run/backup_sync/runtime.env"
+
+if [ ! -f "$RUNTIME_ENV" ]; then
+    echo "runtime.env not found"
+    exit 1
+fi
+
+set -a
+source "$RUNTIME_ENV"
+set +a
+
+emit() {
+    python3 "${BASE_DIR}/ha/emit_cli.py" "$@" || true
+}
+
+
+# ---------------------------------------------------------
+# helpers
+# ---------------------------------------------------------
+
+now() {
+    date +%s
+}
+
+human_size() {
+    numfmt --to=iec --suffix=B "$1" 2>/dev/null || echo "$1"
+}
+
+queue_pop() {
+    [ -s "${QUEUE_FILE}" ] || return 1
+
+    IFS= read -r line < "${QUEUE_FILE}" || return 1
+    sed -i '1d' "${QUEUE_FILE}"
+
+    echo "${line}"
+}
+
+wait_stable() {
+    local f="$1"
+    local s1 s2 stable=0
+
+    while [ $stable -lt 3 ]; do
+        s1=$(stat -c %s "$f" 2>/dev/null || echo 0)
+        sleep 2
+        s2=$(stat -c %s "$f" 2>/dev/null || echo 0)
+
+        if [ "$s1" -eq "$s2" ]; then
+            stable=$((stable + 1))
+        else
+            stable=0
+        fi
+    done
+}
+
+cleanup_old() {
+    [ "${MAX_COPIES}" -le 0 ] && return 0
+
+    local count
+    count=$(ls -1t "${TARGET_PATH}"/*.tar* 2>/dev/null | wc -l || echo 0)
+
+    while [ "${count}" -gt "${MAX_COPIES}" ]; do
+        old=$(ls -1t "${TARGET_PATH}"/*.tar* | tail -n 1)
+        bashio::log.yellow " • Removing old backup: $(basename "$old")"
+        rm -f "$old"
+        count=$((count - 1))
+    done
+}
+
+check_free_space() {
+    local size="$1"
+    local path="$2"
+
+    local free
+    free=$(df -B1 "$path" | awk 'NR==2 {print $4}')
+
+    if [ "$free" -lt "$size" ]; then
+        bashio::log.red "  ✗ Not enough space: $(human_size "$free") free, need $(human_size "$size")"
+        emit storage_failed "{\"reason\":\"device_error\",\"error\":\"no_space\",\"available\":${free},\"required\":${size}}"
+        return 1
+    fi
+
+    return 0
+}
+
+copy_one() {
+
+    TARGET_PATH="${TARGET_ROOT}/${DEVICE}/${TARGET_DIR}"
+
+    local src="$1"
+    local name tmp size size_mb
+    local wait_start wait_end wait_sec
+    local copy_start copy_end copy_sec speed
+    local COPY_TIMEOUT
+
+    name="$(basename "$src")"
+    tmp="${TARGET_PATH}/.${name}.tmp"
+
+    bashio::log "New backup detected:  $(date '+%Y-%m-%d %H:%M:%S')"
+    bashio::log "Backup file: ${name}"
+
+    # -------------------------
+    # stabilization phase
+    # -------------------------
+
+    bashio::log "  • Waiting for file stabilization..."
+
+    wait_start=$(now)
+    wait_stable "$src"
+    wait_end=$(now)
+
+    wait_sec=$((wait_end - wait_start))
+
+    size=$(stat -c %s "$src" 2>/dev/null || echo 0)
+    size_mb=$((size / 1048576))
+
+    check_free_space "$size" "$TARGET_PATH" || {
+    bashio::log.yellow "  ⏭ Skipping copy due to insufficient space"
+    echo 0
+}
+
+    bashio::log "  • File stabilized (${wait_sec}s)"
+    emit copy_service "{\"reason\":\"copy_started\",\"filename\":\"${name}\",\"size_bytes\":${size}}"
+
+    # -------------------------
+    # copy phase
+    # -------------------------
+
+    bashio::log "  • Copying..."
+
+    COPY_TIMEOUT=$(( size_mb + 120 ))
+
+    copy_start=$(now)
+
+    if ! timeout --kill-after=10 "${COPY_TIMEOUT}" cp "$src" "$tmp"; then
+
+    bashio::log.red "  ✗ Copy failed or stalled"
+    rm -f "$tmp"
+
+        if ! mountpoint -q "${TARGET_PATH}"; then
+            bashio::log.red "  ✗ Target storage not mounted"
+            emit storage_failed "{\"reason\":\"device_error\",\"error\":\"Target device disconnected\"}"
+            exit 1
+        fi
+
+        emit copy_service "{\"reason\":\"copy_failed\",\"filename\":\"${name}\"}"
+        return 1
+    fi
+
+    mv "$tmp" "${TARGET_PATH}/${name}"
+
+    copy_end=$(now)
+    copy_sec=$((copy_end - copy_start))
+    [ "$copy_sec" -le 0 ] && copy_sec=1
+
+    speed=$((size / copy_sec))
+
+    bashio::log.green "  ✓ Done ($(human_size "$size")) in ${copy_sec}s ($(human_size "$speed")/s)"
+    emit copy_service "{\"reason\":\"copy_completed\",\"filename\":\"${name}\",\"size_bytes\":${size},\"seconds\":${copy_sec},\"speed_bps\":${speed}}"
+
+    cleanup_old
+
+    return 0
+}
+
+# ---------------------------------------------------------
+# main loop
+# ---------------------------------------------------------
+
+while true; do
+    file=$(queue_pop || true)
+
+    if [ -z "${file:-}" ]; then
+        sleep 5
+        continue
+    fi
+
+    copy_one "$file"
+done
