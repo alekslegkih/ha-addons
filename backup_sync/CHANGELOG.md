@@ -1,8 +1,12 @@
 # Changelog
 
+## v0.5.2
+
+- Minor bug fixes
+
 ## v0.5.1
 
-- Fixed bags
+- Minor bug fixes
 
 ## v0.5.0
 
