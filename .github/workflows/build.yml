@@ -57,7 +57,10 @@ jobs:
             FORCE_BUILD=true
           fi
 
-
+          if [ "$FORCE_BUILD" = true ]; then
+                    echo "Collecting ALL addons for force build"
+                    ADDONS=$(find . -maxdepth 2 -name "config.yaml" -exec dirname {} \; | sed 's|^\./||' | sort -u)
+          else
 
           ADDONS=$(git diff $BASE ${{ github.sha }} --name-only | cut -d/ -f1 | sort -u)
 
