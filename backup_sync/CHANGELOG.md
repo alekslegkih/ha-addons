@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.4
+
+- Fixed event message view
+
 ## v0.5.3
 
 - Changed logging of ru modules
