@@ -26,7 +26,11 @@ After adding the repository, the add-ons will appear in the Add-on Store.
 
 ## Add-ons Available in This Repository
 
+[apcupsd (APC UPS)](https://github.com/alekslegkih/ha-addons/tree/main/apcupsd-ups)
+ — An apcupsd-based service for monitoring APC UPS devices.  
+[Backup sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
+ — Automatic synchronization of backups to an external USB drive  
 [Simple DLNA](https://github.com/alekslegkih/ha-addons/tree/main/simple_dlna)
  — Wrapper around the lightweight ReadyMedia (minidlna) server  
-[Backup sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
- — Automatic synchronization of backups to an external USB drive
+[TeleTorrent](https://github.com/alekslegkih/ha-addons/tree/main/teletorrent)
+ — Allows sending `.torrent` files and magnet links from Telegram directly to Transmission.

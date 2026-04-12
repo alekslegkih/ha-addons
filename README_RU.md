@@ -27,7 +27,11 @@
 
 ## Список аддонов в этом репозитории
 
+[apcupsd (APC UPS)](https://github.com/alekslegkih/ha-addons/tree/main/apcupsd-ups)
+ — Сервис на основе apcupsd для мониторинга ИБП APC  
+[Backup Sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
+ — Автоматическая синхронизации резервных копий на внешний USB-накопитель  
 [Simple DLNA](https://github.com/alekslegkih/ha-addons/tree/main/simple_dlna)
  —  Обёртка над лёгким сервером ReadyMedia (minidlna)  
-[Backup Sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
- — Автоматическая синхронизации резервных копий на внешний USB-накопитель
+[TeleTorrent](https://github.com/alekslegkih/ha-addons/tree/main/teletorrent)
+ — Позволяет отправлять `.torrent` файлы и magnet-ссылки из Telegram напрямую в Transmission.
