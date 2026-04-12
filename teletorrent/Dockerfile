@@ -5,9 +5,8 @@ ARG BUILD_ARCH
 ARG BUILD_VERSION
 
 ENV PYTHONUNBUFFERED=1 \
-    S6_VERBOSITY=2
-
-
+    PYTHONPATH=/app \
+    S6_VERBOSITY=1
 LABEL \
     io.hass.version="${BUILD_VERSION}" \
     io.hass.type="addon" \
@@ -16,10 +15,13 @@ LABEL \
 
 COPY rootfs /
 
-RUN apk add --no-cache ca-certificates && update-ca-certificates
+RUN apk add --no-cache ca-certificates && update-ca-certificates mc
 
 RUN pip3 install --no-cache-dir requests[socks]
 
 RUN chmod +x \
-    /etc/s6-overlay/s6-rc.d/teletorrent/run \
-    /etc/s6-overlay/s6-rc.d/teletorrent/finish
+    /etc/s6-overlay/s6-rc.d/00-init-teletorrent/up \
+    /etc/s6-overlay/s6-rc.d/00-init-teletorrent/run \
+    /etc/s6-overlay/s6-rc.d/10-teletorrent/run \
+    /etc/s6-overlay/s6-rc.d/10-teletorrent/finish
+

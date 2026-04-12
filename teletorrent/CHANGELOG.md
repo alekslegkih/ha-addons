@@ -1,5 +1,26 @@
 # Changelog
 
+## v3.3
+
+- Modification: launch S6
+
+## v3.2
+
+- Fix: minor fixes
+
+## v3.1
+
+- Add: Logging of added torrents (name, status)
+
+## v3.0
+
+- Refactor: Full project restructuring
+- Refactor: Split project into modules (core, telegram, transmission, etc.)
+- Change: Switched to s6 envdir for environment handling
+- Change: Removed dependency on PYTHONPATH hacks
+- Improve: Stable initialization flow (s6 + bashio + Python)
+- Improve: Simplified configuration pipeline
+
 ## v0.2.1
 
 Modification: Changed the method of downloading torrent files from a folder on RPC.

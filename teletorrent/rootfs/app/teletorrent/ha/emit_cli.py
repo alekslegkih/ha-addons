@@ -4,14 +4,10 @@ import sys
 import json
 import logging
 
-from events import emit
+from teletorrent.core.logger import get_logger
+from teletorrent.ha.events import emit
 
-
-# ------------------------------------------------------------------
-# Logger
-# ------------------------------------------------------------------
-
-_logger = logging.getLogger("teletorrent.emit_cli")
+logger = get_logger(__name__)
 
 
 # ------------------------------------------------------------------
@@ -40,11 +36,11 @@ def main() -> int:
             data = json.loads(raw_payload)
 
             if not isinstance(data, dict):
-                _logger.debug("Payload must be JSON object")
+                logger.log("Payload must be JSON object")
                 return 1
 
         except json.JSONDecodeError as exc:
-            _logger.debug(f"Invalid JSON payload: {exc}")
+            logger.log(f"Invalid JSON payload: {exc}")
             return 1
     else:
         data = {}
@@ -54,7 +50,7 @@ def main() -> int:
 
 
 # ------------------------------------------------------------------
-# Entry point
+# Точка входа
 # ------------------------------------------------------------------
 
 if __name__ == "__main__":
