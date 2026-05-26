@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.5.5
+
+- Change: Updated base image to 20.1.1
+
 ## v0.5.4
 
 - Fixed event message view
