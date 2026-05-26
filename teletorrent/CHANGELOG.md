@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.5
+
+- Improve: Telegram reconnect handling
+- Change: Updated base image to Python 3.14 / Alpine 3.23
+
+## v3.4
+
+- Fix: minor fixes
+
 ## v3.3
 
 - Modification: launch S6
