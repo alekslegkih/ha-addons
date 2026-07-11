@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.22
+
+- Fix: minor fixes
+
 ## v0.2.21
 
 - Fix: minor fixes
