@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.23
+
+- Fixed startup failure caused by a missing debug function.
+
 ## v0.2.22
 
 - Fix: minor fixes
