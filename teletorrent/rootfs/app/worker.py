@@ -206,9 +206,9 @@ def main():
 
             time.sleep(sleep_time)
 
-            if error_count >= 100:
-                logger.red("Too many errors, exiting")
-                exit(1)
+            # if error_count >= 100:
+            #    logger.red("Too many errors, exiting")
+            #    exit(1)
 
 
 # ------------------------------------------------------------------------------
