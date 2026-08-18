@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.24
+
+- Change: Updated base image to 21.0.2
+
 ## v0.2.23
 
 - Fixed startup failure caused by a missing debug function.
