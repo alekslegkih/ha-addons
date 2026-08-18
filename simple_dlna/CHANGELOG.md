@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.1
+
+- Fixed: Corrected the addon name.
+
 ## v0.3.0
 
 - Fixed: Corrected mount target path handling.
