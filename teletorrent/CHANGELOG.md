@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.7
+
+- Changed: Replaced the legacy addon_config mapping type with app_config.
+
 ## v0.3.6
 
 - Improve: Telegram reconnect handling without exiting after repeated errors.
