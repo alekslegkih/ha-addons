@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.2
+
+- Change: Replaced the legacy addon_config mapping type with app_config.
+
 ## v0.3.1
 
 - Fixed: Corrected the addon name.
