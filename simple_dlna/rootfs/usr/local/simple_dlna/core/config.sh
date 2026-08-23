@@ -63,7 +63,7 @@ load_config() {
     bashio::log "  Device     : ${usb_value}"
     bashio::log "  Media dir  : ${media_value}"
     bashio::log "  DLNA name  : ${name_value}"
-    bashio::log "  Log level  : ${LOG_LEVEL}"
+    bashio::log "  Log level  : \033[0;34m${LOG_LEVEL}\033[0m"
 
     # ------------------------------------------------------------------
     # Validating target directory
