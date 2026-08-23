@@ -5,6 +5,7 @@ import re
 import sys
 import subprocess
 import shutil
+import tempfile
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent.parent
@@ -42,12 +43,15 @@ DLNA_DIR = os.path.abspath(DLNA_DIR)
 # Helpers
 # =========================
 
-def safe_path(path):
+def safe_path(path, fallback=True):
     full_path = os.path.abspath(os.path.join(DLNA_DIR, path))
 
-    if not os.path.commonpath([full_path, DLNA_DIR]) == DLNA_DIR:
+    if os.path.commonpath([full_path, DLNA_DIR]) != DLNA_DIR:
         log_yellow(f"Blocked path traversal attempt: {path}")
-        return DLNA_DIR
+
+        if fallback:
+            return DLNA_DIR
+        return None
 
     return full_path
 
@@ -72,16 +76,12 @@ def trigger_rescan():
 
 def smart_filename(filename: str) -> str:
     filename = os.path.basename(filename)
-
     filename = re.sub(r"[^0-9A-Za-zА-Яа-яЁё._\- ]", "", filename)
-
     filename = filename.strip()
-
     return filename
 
 
 def list_directory(rel_path):
-
     current_dir = safe_path(rel_path)
 
     try:
@@ -100,20 +100,16 @@ def list_directory(rel_path):
     files = []
 
     for e in entries:
-
         full_path = os.path.join(current_dir, e)
 
         if os.path.isfile(full_path):
-
             size_bytes = os.path.getsize(full_path)
-
             files.append({
                 "name": e,
                 "size": human_size(size_bytes)
             })
 
     files = sorted(files, key=lambda x: x["name"].lower())
-
     parent = "/".join(rel_path.split("/")[:-1]) if rel_path else None
 
     return folders, files, parent
@@ -132,7 +128,19 @@ def index():
 
     if request.method == "POST":
 
-        file = request.files.get("file")
+        try:
+            file = request.files.get("file")
+
+        except OSError as e:
+            log_yellow(f"Upload interrupted: {e}")
+
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return {
+                    "status": "error",
+                    "message": "Upload interrupted"
+                }, 400
+
+            return redirect(url_for("index", path=rel_path))
 
         if file:
 
@@ -141,16 +149,69 @@ def index():
             if not filename:
 
                 if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return {"status": "error", "message": "Invalid filename"}, 400
+                    return {
+                        "status": "error",
+                        "message": "Invalid filename"
+                    }, 400
 
                 return redirect(url_for("index", path=rel_path))
-
             target = os.path.join(current_dir, filename)
+
+            overwrite = request.form.get("overwrite") == "1"
+            temp_path = None
 
             try:
 
-                with open(target, "xb") as f:
+                if not overwrite and os.path.exists(target):
+
+                    log_yellow(
+                        f"Upload skipped (already exists): {filename}"
+                    )
+
+                    if request.headers.get(
+                        "X-Requested-With"
+                    ) == "XMLHttpRequest":
+                        return {"status": "exists"}, 409
+
+                    return redirect(
+                        url_for("index", path=rel_path)
+                    )
+
+                log(
+                    f"Upload started: {filename}"
+                    + (" (overwrite)" if overwrite else "")
+                )
+
+                fd, temp_path = tempfile.mkstemp(
+                    prefix=f".{filename}.",
+                    suffix=".upload",
+                    dir=current_dir
+                )
+
+                log_debug(
+                    f"Temporary upload file created: "
+                    f"{os.path.basename(temp_path)}"
+                )
+
+                with os.fdopen(fd, "wb") as f:
                     file.save(f)
+
+                log_debug(f"Upload data completed: {filename}")
+
+                if overwrite:
+
+                    log_debug(
+                        f"Replacing existing file: {filename}"
+                    )
+
+                    os.replace(temp_path, target)
+
+                else:
+
+                    os.link(temp_path, target)
+                    os.unlink(temp_path)
+
+                temp_path = None
 
                 log(f"Uploaded: {filename}")
 
@@ -158,23 +219,54 @@ def index():
 
             except FileExistsError:
 
-                log_yellow(f"Upload skipped (already exists): {filename}")
+                if temp_path and os.path.exists(temp_path):
+                    os.unlink(temp_path)
 
-                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                    log_debug(
+                        f"Temporary upload file removed: "
+                        f"{os.path.basename(temp_path)}"
+                    )
+
+                log_yellow(
+                    f"Upload skipped (already exists): {filename}"
+                )
+
+                if request.headers.get(
+                    "X-Requested-With"
+                ) == "XMLHttpRequest":
                     return {"status": "exists"}, 409
 
-                return redirect(url_for("index", path=rel_path))
+                return redirect(
+                    url_for("index", path=rel_path)
+                )
 
             except Exception as e:
 
-                log_red(f"Upload failed: {e}")
+                if temp_path and os.path.exists(temp_path):
+                    os.unlink(temp_path)
 
-                if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                    return {"status": "error", "message": str(e)}, 500
+                    log_debug(
+                        f"Temporary upload file removed: "
+                        f"{os.path.basename(temp_path)}"
+                    )
 
-                return redirect(url_for("index", path=rel_path))
+                log_red(f"Upload failed: {filename}: {e}")
 
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                if request.headers.get(
+                    "X-Requested-With"
+                ) == "XMLHttpRequest":
+                    return {
+                        "status": "error",
+                        "message": "Upload failed"
+                    }, 500
+
+                return redirect(
+                    url_for("index", path=rel_path)
+                )
+
+            if request.headers.get(
+                "X-Requested-With"
+            ) == "XMLHttpRequest":
 
                 return {
                     "status": "ok",
@@ -189,7 +281,9 @@ def index():
 
     except Exception as e:
 
-        log_red(f"Failed to list directory {current_dir}: {e}")
+        log_red(
+            f"Failed to list directory {current_dir}: {e}"
+        )
 
         return "Error", 500
 
@@ -211,8 +305,7 @@ def index():
         free_space=human_size(free)
     )
 
-
-@app.route("/delete/<path:subpath>")
+@app.route("/delete/<path:subpath>", methods=["POST"])
 def delete(subpath):
 
     name = os.path.basename(subpath)
@@ -222,14 +315,38 @@ def delete(subpath):
         try:
             target.rmdir()
             log_yellow(f"Folder removed: {name}")
+
         except OSError as e:
-            log_red(f"Failed to remove folder {name}: {e}")
+            log_red(f"Delete failed for '{name}' ({target}): {e}")
+
+            if e.errno == 39:
+                return {
+                    "status": "error",
+                    "message": "Folder is not empty"
+                }, 400
+
+            return {
+                "status": "error",
+                "message": str(e)
+            }, 400
+
     elif target.is_file():
         try:
             target.unlink()
             log_yellow(f"File removed: {name}")
+
         except Exception as e:
             log_red(f"Failed to remove file {name}: {e}")
+            return {
+                "status": "error",
+                "message": str(e)
+            }, 500
+
+    else:
+        return {
+            "status": "error",
+            "message": "File or folder not found"
+        }, 404
 
     trigger_rescan()
 
@@ -241,18 +358,33 @@ def delete(subpath):
 def mkdir(subpath):
 
     dirname = request.form.get("dirname")
+    dirname = smart_filename(dirname)
 
     if not dirname:
         log_debug("mkdir called without dirname")
         return redirect(url_for("index", path=subpath))
 
-    target = safe_path(os.path.join(subpath, dirname))
+    target = safe_path(
+        os.path.join(subpath, dirname),
+        fallback=False
+    )
+
+    if target is None:
+        return {
+            "status": "error",
+            "message": "Invalid folder path"
+        }, 400
 
     try:
         os.makedirs(target, exist_ok=True)
         log_green(f"Folder created: {dirname}")
+
     except Exception as e:
         log_red(f"Failed to create folder {dirname}: {e}")
+        return {
+            "status": "error",
+            "message": str(e)
+        }, 500
 
     return {"status": "ok"}
 
@@ -268,29 +400,6 @@ def api_list():
     except Exception as e:
 
         return {"status": "error", "message": str(e)}, 500
-
-    return {
-        "status": "ok",
-        "current_path": rel_path,
-        "parent": parent,
-        "folders": folders,
-        "files": files
-    }
-
-    files = []
-
-    for e in entries:
-        full_path = os.path.join(current_dir, e)
-        if os.path.isfile(full_path):
-            size_bytes = os.path.getsize(full_path)
-            files.append({
-                "name": e,
-                "size": human_size(size_bytes)
-            })
-
-    files = sorted(files, key=lambda x: x["name"].lower())
-
-    parent = "/".join(rel_path.split("/")[:-1]) if rel_path else None
 
     return {
         "status": "ok",
@@ -335,8 +444,12 @@ def move():
         trigger_rescan()
 
     except Exception as e:
+        log_red(f"Move failed: {e}")
 
-        return {"status": "error", "message": str(e)}, 500
+        return {
+            "status": "error",
+            "message": "Failed to move file or folder"
+        }, 500
 
     return {"status": "ok"}
 
@@ -376,7 +489,12 @@ def rename():
 
     if not new_name:
         return {"status": "error", "message": "Invalid name"}, 400
+
     target_path = parent_dir / new_name
+
+    if not source_path.exists():
+        return {"status": "error", "message": "Source not found"}, 404
+
     try:
         if target_path.exists():
             return {"status": "error", "message": "Already exists"}, 400
@@ -387,8 +505,12 @@ def rename():
         return {"status": "ok"}
 
     except Exception as e:
+        log_red(f"Rename failed: {e}")
 
-        return {"status": "error", "message": str(e)}, 500
+        return {
+            "status": "error",
+            "message": "Failed to rename file or folder"
+        }, 500
 
 
 @app.route("/download/<path:subpath>")
@@ -404,13 +526,13 @@ def download(subpath):
         as_attachment=True,
         download_name=target.name
     )
-    
+
 @app.route("/api/check-file", methods=["POST"])
 def check_file():
 
     data = request.get_json()
 
-    filename = data.get("filename")
+    filename = smart_filename(data.get("filename", ""))
     filesize = data.get("filesize")
     rel_path = data.get("path", "").strip("/")
 

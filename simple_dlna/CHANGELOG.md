@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.3
+
+- Fixed: Improved file manager stability and error handling.
+- Change: General code cleanup.
+
 ## v0.3.2
 
 - Change: Replaced the legacy addon_config mapping type with app_config.
