@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.4.0
+
+- Fixed: Configuration and media watcher issues.
+- Improved: DLNA configuration handling and validation.
+- Improved: Storage device detection and system disk protection.
+- Changed: Updated s6-overlay user bundle configuration.
+- Changed: Improved logging and general code stability.
+
 ## v0.3.4
 
 - Fixed: Corrected loading of addon configuration values that could cause configured media directory settings to be ignored.

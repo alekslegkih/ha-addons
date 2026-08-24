@@ -108,6 +108,7 @@ if ! check_storage; then
     detect_devices
 
     bashio::log.cyan "Please set parameter: device"
+    bashio::log.yellow "Note: Home Assistant system and data disks cannot be used"
     bashio::log.yellow "Example: device: sdb1 | label | UUID"
 
     fail_and_stop
@@ -134,7 +135,7 @@ bashio::log.green "Сonfiguration ready"
 log_debug "DLNA config initialized"
 
 # ------------------------------------------------------------------
-# Flag barier
+# Flag barrier
 # ------------------------------------------------------------------
 touch "/run/simple_dlna/service.ready"
 
