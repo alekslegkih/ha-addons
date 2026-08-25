@@ -29,5 +29,6 @@ RUN chmod +x \
     "${S6_USER_BUNDLES}/user-bundles.d/00-init/up" \
     "${S6_USER_BUNDLES}/user-bundles.d/10-apcupsd/run" \
     "${S6_USER_BUNDLES}/user-bundles.d/10-apcupsd/finish" \
+    "${S6_USER_BUNDLES}/scripts/init.sh" \
     "/etc/apcupsd/doshutdown"
 
