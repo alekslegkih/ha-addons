@@ -1,10 +1,11 @@
-#!/usr/bin/with-contenv bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
 
 set -eEuo pipefail
 
 # Пути к основным файлам и директориям
-CONFIG_FILE="/etc/apcupsd/apcupsd.conf"
+APP_DIR="/etc/apcupsd"
+CONFIG_FILE="${APP_DIR}/apcupsd.conf"
 TMP_FILE="${CONFIG_FILE}.tmp"
 
 RUNTIME_DIR="/run/apcupsd"
@@ -109,12 +110,12 @@ chmod 644 "${CONFIG_FILE}"
 
 # Заглушаем стандартные скрипты apcupsd
 for script in onbattery offbattery commfailure commok; do
-    if [ -f "/etc/apcupsd/${script}" ]; then
-        cat <<'EOF' > "/etc/apcupsd/${script}"
+    if [ -f "${APP_DIR}/${script}" ]; then
+        cat <<'EOF' > "${APP_DIR}/${script}"
 #!/bin/sh
 exit 0
 EOF
-        chmod +x "/etc/apcupsd/${script}"
+        chmod +x "${APP_DIR}/${script}"
     fi
 done
 
