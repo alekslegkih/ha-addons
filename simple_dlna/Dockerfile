@@ -5,8 +5,8 @@ ARG BUILD_ARCH
 ARG BUILD_VERSION
 
 ENV S6_VERBOSITY=1 \
-    WORKDIR=/usr/local/simple_dlna \
-    S6_USER_BUNDLES=/etc/s6-overlay/user-bundles.d
+    APP_DIR=/usr/local/simple_dlna \
+    S6_USER_BUNDLES=/etc/s6-overlay
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -20,8 +20,7 @@ LABEL \
 # Copy root filesystem
 COPY rootfs /
 
-
-
+# Install apk
 RUN apk add --no-cache \
     bash \
     coreutils \
@@ -43,13 +42,11 @@ RUN python3 -m pip install --no-cache-dir \
     requests \
     flask
 
-
 RUN chmod +x \
-    ${S6_USER_BUNDLES}/00-init/up \
-    ${S6_USER_BUNDLES}/01-service/run \
-    ${S6_USER_BUNDLES}/01-service/finish \
-    ${S6_USER_BUNDLES}/02-watcher/run \
-    ${S6_USER_BUNDLES}/03-manager/run \
-    /usr/bin/simple_dlna_init.sh \
-    /usr/bin/simple_dlna_service.sh \
-    && find /usr/local/simple_dlna -type f -name "*.sh" -exec chmod +x {} \;
+    "${S6_USER_BUNDLES}/user-bundles.d/00-init/up" \
+    "${S6_USER_BUNDLES}/user-bundles.d/01-service/run" \
+    "${S6_USER_BUNDLES}/user-bundles.d/01-service/finish" \
+    "${S6_USER_BUNDLES}/user-bundles.d/02-watcher/run" \
+    "${S6_USER_BUNDLES}/user-bundles.d/03-manager/run" \
+    "${S6_USER_BUNDLES}/scripts/init.sh" \
+    && find "${APP_DIR}" -type f -name "*.sh" -exec chmod +x {} \;

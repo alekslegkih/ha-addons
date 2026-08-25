@@ -1,4 +1,1 @@
-#!/command/with-contenv bashio
-# shellcheck shell=bash
-
-exec /usr/bin/simple_dlna_init.sh
+/etc/s6-overlay/scripts/init.sh
