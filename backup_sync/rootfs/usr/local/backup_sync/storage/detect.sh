@@ -1,15 +1,28 @@
-#!/usr/bin/with-contenv bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
 
 set -euo pipefail
 
 
 # ------------------------------------------------------------------
-# Constants
+# Table helper
 # ------------------------------------------------------------------
 
-SYSTEM_DISKS_REGEX="^(sda|mmcblk0|zram)"
+CYAN='\033[36m'
+RESET='\033[0m'
 
+print_table_row() {
+    printf "${CYAN}| %-9.9s | %-12.12s | %-36.36s | %-6.6s | %-8.8s |${RESET}\n" \
+        "$1" \
+        "$2" \
+        "$3" \
+        "$4" \
+        "$5"
+}
+
+print_table_separator() {
+    printf "${CYAN}+-----------+--------------+--------------------------------------+--------+----------+${RESET}\n"
+}
 
 # ------------------------------------------------------------------
 # Device detection
@@ -18,58 +31,95 @@ SYSTEM_DISKS_REGEX="^(sda|mmcblk0|zram)"
 detect_devices() {
 
     log_debug "detect_devices(): start"
-    log_debug "System disk regex=${SYSTEM_DISKS_REGEX}"
 
-    bashio::log "Available Disks for mounting:"
+    bashio::log.cyan "Available Disks for mounting:"
+    echo
 
-    log_debug "Running lsblk (formatted view)"
+    print_table_separator
 
-    lsblk -o NAME,LABEL,UUID,SIZE,FSTYPE,TYPE \
-        | awk -v regex="${SYSTEM_DISKS_REGEX}" '
-            NR==1 { print $1, $2, $3, $4, $5; next }
-            $6=="part" && $5!="" && $1 !~ regex {
-                print $1, $2, $3, $4, $5
-            }
-        ' \
-        | column -t
+    print_table_row \
+        "NAME" \
+        "LABEL" \
+        "UUID" \
+        "SIZE" \
+        "FSTYPE"
+
+    print_table_separator
+
+    local first_disk=true
+
+    log_debug "Running lsblk device scan"
+
+    while IFS= read -r line; do
+
+        log_debug "lsblk raw: ${line}"
+
+        eval "${line}"
+
+        log_debug "Parsed: NAME=${NAME:-none} TYPE=${TYPE:-none} LABEL=${LABEL:-none} UUID=${UUID:-none} SIZE=${SIZE:-none} FSTYPE=${FSTYPE:-none}"
+
+        case "${TYPE}" in
+            disk)
+
+                case "${NAME}" in
+                    zram*)
+                        log_debug "Skipping zram device: ${NAME}"
+                        continue
+                        ;;
+                esac
+
+                if [ "${first_disk}" = false ]; then
+                    print_table_separator
+                fi
+
+                log_debug "Printing disk: ${NAME}"
+
+                print_table_row \
+                    "${NAME}" \
+                    "${LABEL}" \
+                    "${UUID}" \
+                    "${SIZE}" \
+                    "${FSTYPE}"
+
+                first_disk=false
+                ;;
+
+            part)
+
+                case "${NAME}" in
+                    zram*)
+                        log_debug "Skipping zram partition: ${NAME}"
+                        continue
+                        ;;
+                esac
+
+                log_debug "Printing partition: ${NAME}"
+
+                print_table_row \
+                    "${NAME}" \
+                    "${LABEL}" \
+                    "${UUID}" \
+                    "${SIZE}" \
+                    "${FSTYPE}"
+                ;;
+
+            *)
+                log_debug "Skipping unsupported device type: ${TYPE:-none} (${NAME:-unknown})"
+                ;;
+        esac
+
+    done < <(
+        lsblk -P -n -o NAME,LABEL,UUID,SIZE,FSTYPE,TYPE
+    )
+
+    print_table_separator
 
     echo
 
-    log_debug "Scanning raw lsblk output"
-
-    while read -r name type fstype size label uuid; do
-
-        log_debug "RAW: name=${name} type=${type} fstype=${fstype:-none} size=${size:-none} label=${label:-none} uuid=${uuid:-none}"
-
-        [ "${type}" != "part" ] && continue
-
-        base_name="$(basename "${name}")"
-
-        if [[ "${base_name}" =~ ${SYSTEM_DISKS_REGEX} ]]; then
-            log_debug "Skipping system device ${base_name}"
-            continue
-        fi
-
-        if [ -z "${fstype}" ]; then
-            log_debug "Skipping ${base_name} (no filesystem)"
-            continue
-        fi
-
-        if [ -z "${label}" ]; then
-            log_debug "Label missing for ${base_name}, using blkid fallback"
-            label="$(blkid -o value -s LABEL "${name}" 2>/dev/null || true)"
-            log_debug "blkid fallback label=${label:-none}"
-        fi
-
-        if [ -z "${uuid}" ]; then
-            log_debug "UUID missing for ${base_name}, using blkid fallback"
-            uuid="$(blkid -o value -s UUID "${name}" 2>/dev/null || true)"
-            log_debug "blkid fallback uuid=${uuid:-none}"
-        fi
-
-        log_debug "Valid device detected: ${base_name}"
-
-    done < <(lsblk -rpn -o NAME,TYPE,FSTYPE,SIZE,LABEL,UUID)
-
     log_debug "detect_devices(): completed"
+
+    bashio::log.cyan "Please set parameter: device"
+    bashio::log.yellow "Note: Home Assistant system and data disks cannot be used"
+    bashio::log.yellow "Example: device: sdb1 | label | UUID"
+
 }

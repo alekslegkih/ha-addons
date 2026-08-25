@@ -1,9 +1,9 @@
-#!/usr/bin/with-contenv bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
 
 set -uo pipefail
 
-RUNTIME_ENV="/run/backup_sync/runtime.env"
+RUNTIME_ENV="${RUNTIME_DIR}/runtime.env"
 
 if [ ! -f "$RUNTIME_ENV" ]; then
     echo "runtime.env not found"
@@ -15,7 +15,7 @@ source "$RUNTIME_ENV"
 set +a
 
 emit() {
-    python3 "${BASE_DIR}/ha/emit_cli.py" "$@" || true
+    python3 "${APP_DIR}/ha/emit_cli.py" "$@" || true
 }
 
 # ---------------------------------------------------------
@@ -87,8 +87,6 @@ check_free_space() {
 }
 
 copy_one() {
-
-    TARGET_PATH="${TARGET_ROOT}/${DEVICE}/${TARGET_DIR}"
 
     local src="$1"
     local name tmp size size_mb

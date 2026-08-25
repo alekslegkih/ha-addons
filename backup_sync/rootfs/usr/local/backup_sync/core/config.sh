@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/command/with-contenv bashio
 # shellcheck shell=bash
 
 set -euo pipefail
@@ -8,7 +8,7 @@ set -euo pipefail
 # ------------------------------------------------------------------
 
 DEVICE=""
-MAX_COPIES=0
+MAX_COPIES=7
 SYNC_EXIST_START=false
 
 # ------------------------------------------------------------------
