@@ -2,12 +2,8 @@ name: CI
 
 run-name: >-
   ${{ github.event_name == 'workflow_dispatch'
-      && (inputs.workflow_name != '' && inputs.workflow_name || 'CI')
-      || github.event_name == 'push'
-      && format('CI #{0}: {1}', github.run_number, github.event.head_commit.message)
-      || github.event_name == 'pull_request'
-      && format('CI PR #{0}: {1}', github.event.pull_request.number, github.event.pull_request.title)
-      || 'CI' }}
+      && (inputs.workflow_name || 'CI')
+      || github.event.head_commit.message }}
 
 on:
   push:
