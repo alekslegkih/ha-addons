@@ -1107,7 +1107,7 @@ function refreshFileList() {
                     </tr>
                 `;
             });
-            
+
         tbody.innerHTML = html;
 
         })
@@ -1141,7 +1141,7 @@ let moveSource = null;
 
 function openMoveModal(source) {
     moveSource = source;
-    
+
     const name = source.split("/").pop();
     document.getElementById("moveItemName").innerText = name;
 
@@ -1208,7 +1208,9 @@ document.getElementById("confirmDeleteBtn")
 
     if (!deleteTarget) return;
 
-    fetch("delete/" + encodePath(deleteTarget))
+    fetch("delete/" + encodePath(deleteTarget), {
+        method: "POST"
+    })
     .then(res => res.json())
     .then(data => {
 
@@ -1216,9 +1218,13 @@ document.getElementById("confirmDeleteBtn")
             closeDeleteModal();
             refreshFileList();
         } else {
-            alert("Delete failed");
+            alert(data.message || "Delete failed");
         }
 
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Delete failed");
     });
 
 });
@@ -1253,7 +1259,7 @@ function openRenameModal(path) {
     const input = document.getElementById("renameInput");
 
     const lastDot = name.lastIndexOf(".");
-    
+
     if (lastDot > 0) {
         input.value = name.substring(0, lastDot);
     } else {
@@ -1281,7 +1287,7 @@ function confirmRename() {
     const oldName = renameSource.split("/").pop();
     const lastDot = oldName.lastIndexOf(".");
 
-    if (lastDot > 0) {А
+    if (lastDot > 0) {
         const extension = oldName.substring(lastDot);
         newName += extension;
     }
