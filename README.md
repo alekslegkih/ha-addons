@@ -1,36 +1,39 @@
-# Legkih Add-ons for Home Assistant
+# Legkih Add-on for Home Assistant
 
-[Русская версия](https://github.com/alekslegkih/ha-addons/blob/main/README_RU.md)
+[English version](https://github.com/alekslegkih/ha-addons/blob/main/README_EN.md)
 
-## Automatic Installation (Recommended)
+## Автоматическая установка (рекомендуется)
 
-To add this repository to Home Assistant, click the button below:
+Чтобы добавить этот репозиторий в Home Assistant, нажмите кнопку ниже:
 
-[![Add to Home Assistant](https://img.shields.io/badge/Add%20to-Home%20Assistant-blue?logo=home-assistant&logoColor=white&labelColor=41B3A3)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/alekslegkih/ha-addons)
+[![Добавить в Home Assistant](https://img.shields.io/badge/Добавить%20в-Home%20Assistant-blue?logo=home-assistant&logoColor=white&labelColor=41B3A3)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/alekslegkih/ha-addons)
 
 > [!TIP]
-> If the automatic button does not work,  
-> follow the official Home Assistant documentation for installing third-party add-ons.
+> Если автоматическая кнопка не работает,
+> следуйте официальной документации по установке сторонних аддонов.
 
-[![Official Documentation](https://img.shields.io/badge/Official%20Documentation-Home%20Assistant-blue?logo=home-assistant&logoColor=white&labelColor=41B3A3)](https://www.home-assistant.io/common-tasks/os#installing-a-third-party-app-repository)
+[![Официальная документация](https://img.shields.io/badge/Официальная%20документация-Home%20Assistant-blue?logo=home-assistant&logoColor=white&labelColor=41B3A3)](https://www.home-assistant.io/common-tasks/os#installing-a-third-party-app-repository)
 
-## Manual Installation
+## Ручная установка
 
-In the Home Assistant web interface, go to <kbd>Supervisor</kbd> → <kbd>Add-on Store</kbd>.  
-Click the three-dot menu <kbd>...</kbd> in the top-right corner and select <kbd>Repositories</kbd>.  
-In the dialog that appears, paste the repository URL below and click <kbd>Add</kbd>:
+В веб-интерфейсе Home Assistant перейдите в раздел <kbd>Супервизор</kbd> <kbd>Магазин дополнений</kbd>.  
+В правом верхнем углу нажмите на меню с тремя точками <kbd>...</kbd>
+и выберите пункт <kbd>Репозитории</kbd>.  
+В появившемся окне вставьте ссылку на этот репозиторий и нажмите <kbd>Добавить</kbd>:
 
 `https://github.com/alekslegkih/ha-addons`
 
-After adding the repository, the add-ons will appear in the Add-on Store.
+После добавления репозитория в списке дополнений появятся доступные аддоны.
 
-## Add-ons Available in This Repository
+## Список аддонов в этом репозитории
 
 [apcupsd (APC UPS)](https://github.com/alekslegkih/ha-addons/tree/main/apcupsd-ups)
- — An apcupsd-based service for monitoring APC UPS devices.  
-[Backup sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
- — Automatic synchronization of backups to an external USB drive  
+ — Сервис на основе apcupsd для мониторинга ИБП APC  
+[Backup Sync](https://github.com/alekslegkih/ha-addons/tree/main/backup_sync)
+ — Автоматическая синхронизации резервных копий на внешний USB-накопитель  
 [Simple DLNA](https://github.com/alekslegkih/ha-addons/tree/main/simple_dlna)
- — Wrapper around the lightweight ReadyMedia (minidlna) server  
+ —  Обёртка над лёгким сервером ReadyMedia (minidlna)  
 [TeleTorrent](https://github.com/alekslegkih/ha-addons/tree/main/teletorrent)
- — Allows sending `.torrent` files and magnet links from Telegram directly to Transmission.
+ — Позволяет отправлять `.torrent` файлы и magnet-ссылки из Telegram напрямую в Transmission.  
+[Redis](https://github.com/alekslegkih/ha-addons/tree/main/redis)
+ — Redis-сервер для кэширования данных в памяти.
