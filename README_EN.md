@@ -33,6 +33,6 @@ After adding the repository, the add-ons will appear in the Add-on Store.
 [Simple DLNA](https://github.com/alekslegkih/ha-addons/tree/main/simple_dlna)
  — Wrapper around the lightweight ReadyMedia (minidlna) server  
 [TeleTorrent](https://github.com/alekslegkih/ha-addons/tree/main/teletorrent)
- — Allows sending `.torrent` files and magnet links from Telegram directly to Transmission. 
+ — Allows sending `.torrent` files and magnet links from Telegram directly to Transmission.  
  [Redis](https://github.com/alekslegkih/ha-addons/tree/main/redis)
  — Redis server for in-memory data caching
