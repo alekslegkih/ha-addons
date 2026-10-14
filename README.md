@@ -30,6 +30,6 @@
 [TeleTorrent](https://github.com/alekslegkih/ha-addons/tree/main/teletorrent)
  — Позволяет отправлять `.torrent` файлы и magnet-ссылки из Telegram напрямую в Transmission.  
 [Redis](https://github.com/alekslegkih/ha-addons/tree/main/redis)
- — Redis-сервер для кэширования данных в памяти.
+ — Redis-сервер для кэширования данных в памяти.  
  [MQTT2API](https://github.com/alekslegkih/ha-addons/tree/main/mqtt2api)
  —  Предоставлет двунаправленный мост между MQTT и HTTP API / WebSocket для IOT устройств.
