@@ -30,3 +30,5 @@ After adding the repository, the add-ons will appear in the Add-on Store.
  — Allows sending `.torrent` files and magnet links from Telegram directly to Transmission.  
  [Redis](https://github.com/alekslegkih/ha-addons/tree/main/redis)
  — Redis server for in-memory data caching
+ [MQTT2API](https://github.com/alekslegkih/ha-addons/tree/main/mqtt2api)
+— Provides a bidirectional bridge between MQTT and HTTP API / WebSocket for IoT devices.
