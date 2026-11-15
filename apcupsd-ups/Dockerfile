@@ -1,4 +1,4 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.2
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.11
 FROM ${BUILD_FROM}
 
 ARG BUILD_ARCH
@@ -29,6 +29,4 @@ RUN chmod +x \
     "${S6_USER_BUNDLES}/user-bundles.d/00-init/up" \
     "${S6_USER_BUNDLES}/user-bundles.d/10-apcupsd/run" \
     "${S6_USER_BUNDLES}/user-bundles.d/10-apcupsd/finish" \
-    "${S6_USER_BUNDLES}/scripts/init.sh" \
     "/etc/apcupsd/doshutdown"
-
