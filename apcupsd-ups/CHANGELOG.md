@@ -2,6 +2,10 @@
 
 ## v0.2.2
 
+- Changed: Fix Dockerfile
+
+## v0.2.2
+
 - Changed: Updated base image to 21.0.11
 
 ## v0.2.1
